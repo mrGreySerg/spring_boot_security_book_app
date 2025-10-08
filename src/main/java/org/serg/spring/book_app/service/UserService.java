@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.serg.spring.book_app.dto.RegisterRequest;
 import org.serg.spring.book_app.entity.Role;
 import org.serg.spring.book_app.entity.User;
+import org.serg.spring.book_app.exception.UserExistsException;
 import org.serg.spring.book_app.repository.BookRepository;
 import org.serg.spring.book_app.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public User register(RegisterRequest registerRequest) {
+        if (userRepository.existsUserByUsername(registerRequest.getUsername())) {
+            throw new UserExistsException("Такой пользователь уже существует");
+        }
         User user = User.builder()
                 .username(registerRequest.getUsername())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))

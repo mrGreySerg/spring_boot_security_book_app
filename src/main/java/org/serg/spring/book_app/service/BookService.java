@@ -5,8 +5,12 @@ import org.serg.spring.book_app.dto.BookRequest;
 import org.serg.spring.book_app.entity.Book;
 import org.serg.spring.book_app.entity.Role;
 import org.serg.spring.book_app.entity.User;
+import org.serg.spring.book_app.event.BookCreatedEvent;
+import org.serg.spring.book_app.exception.BookAccessDeniedException;
+import org.serg.spring.book_app.exception.BookNotFoundException;
 import org.serg.spring.book_app.repository.BookRepository;
 import org.serg.spring.book_app.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher publisher;
 
     public Book addBook(BookRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -31,8 +36,18 @@ public class BookService {
                 .author(request.getAuthor())
                 .user(user)
                 .build();
+        Book savedBook = bookRepository.save(book);
 
-        return bookRepository.save(book);
+        BookCreatedEvent event = BookCreatedEvent.builder()
+                .bookId(savedBook.getId())
+                .title(savedBook.getTitle())
+                .author(savedBook.getAuthor())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .build();
+
+        publisher.publishEvent(event);
+        return savedBook;
     }
 
     public List<Book> getAllBooks() {
@@ -54,8 +69,8 @@ public class BookService {
         User currentUser = userRepository.findByUsername(username);
 
         Book book = bookRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException("Книга не найдена"));
+                .orElseThrow(() ->
+                        new BookNotFoundException("Книга не найдена"));
         if (currentUser.getRole() == Role.ROLE_ADMIN) {
             bookRepository.delete(book);
             return;
@@ -65,7 +80,7 @@ public class BookService {
             bookRepository.delete(book);
 
         } else {
-            throw new RuntimeException("У вас не прав удалять эту книгу");
+            throw new BookAccessDeniedException("У вас нет прав удалять эту книгу");
         }
 
     }

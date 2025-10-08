@@ -1,5 +1,6 @@
 package org.serg.spring.book_app.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.serg.spring.book_app.dto.BookRequest;
 import org.serg.spring.book_app.entity.Book;
@@ -16,9 +17,8 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
-
     @PostMapping
-    public Book addBook(@RequestBody BookRequest request) {
+    public Book addBook(@Valid @RequestBody BookRequest request) {
         return bookService.addBook(request);
     }
 

@@ -1,5 +1,6 @@
 package org.serg.spring.book_app.controller;
 
+import jakarta.validation.Valid;
 import org.serg.spring.book_app.dto.RegisterRequest;
 import org.serg.spring.book_app.entity.User;
 import org.serg.spring.book_app.service.UserService;
@@ -21,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping(path = "/register")
-    public User registerUser(@RequestBody RegisterRequest request) {
+    public User registerUser(@Valid @RequestBody RegisterRequest request) {
         System.out.println("Controller password: " + request.getUsername());
        return userService.register(request);
     }
