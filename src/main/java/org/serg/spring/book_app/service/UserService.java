@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.serg.spring.book_app.dto.RegisterRequest;
 import org.serg.spring.book_app.entity.Role;
 import org.serg.spring.book_app.entity.User;
-import org.serg.spring.book_app.exception.UserExistsException;
+//import org.serg.spring.book_app.exception.UserExistsException;
 import org.serg.spring.book_app.repository.BookRepository;
 import org.serg.spring.book_app.repository.UserRepository;
+import org.serg.spring.bookappstarter.exception.UserExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
